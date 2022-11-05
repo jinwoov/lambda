@@ -1,0 +1,46 @@
+name: superlinter
+on:
+  pull_request:
+    types:
+      - "opened"
+      - "synchronize"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - name: lint
+        uses: golangci/golangci-lint-action@v3.3.0
+        with:
+          version: latest
+          args: '-E=gofmt'
+          skip-cache: true
+  superlinter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Lint Code Base
+        uses: github/super-linter/slim@v4
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_GO: true
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_GITLEAKS: true
+          VALIDATE_PYTHON: true
+          VALIDATE_JAVA: true
+          VALIDATE_JAVASCRIPT_STANDARD: true
