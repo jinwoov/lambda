@@ -17,3 +17,12 @@ data "archive_file" "lambda_function" {
   output_file_mode = "0666"
   output_path      = "${path.module}/files/main.zip"
 }
+
+resource "aws_s3_bucket" "dogbucket" {
+  bucket = "dogbucket-jk"
+}
+
+resource "aws_s3_bucket_acl" "acl_s3" {
+  bucket = aws_s3_bucket.dogbucket.id
+  acl    = "private"
+}
