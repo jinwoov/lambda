@@ -24,10 +24,9 @@ type Response struct {
 
 func Handler(req Request) (Response, error) {
 	if req.Age == 0 || req.Breed == "" || req.Name == "" {
-		return Response{
-			Message: "Request body was empty",
-			Ok:      false,
-		}, fmt.Errorf("error did not receive necessary information")
+		req.Age = 3
+		req.Breed = "golden"
+		req.Name = "mochi"
 	}
 
 	err := uploadToS3(req)
