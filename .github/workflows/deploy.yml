@@ -19,10 +19,6 @@ env:
 
 jobs:
   tf_deploy:
-    defaults:
-      run:
-        working-directory: infra
-    needs: goexe_create
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
