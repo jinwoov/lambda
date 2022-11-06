@@ -19,7 +19,7 @@ data "archive_file" "lambda_function" {
 }
 
 resource "aws_s3_bucket" "dogbucket" {
-  bucket = "dogbucket-jk"
+  bucket        = "dogbucket-jk"
   force_destroy = true
   lifecycle {
     prevent_destroy = false
@@ -34,10 +34,34 @@ resource "aws_s3_bucket_acl" "acl_s3" {
 resource "aws_cloudwatch_event_rule" "cron_event_rule" {
   name                = var.cron_name
   description         = "Scheduled every 1 min"
-  schedule_expression = "rate(1 minute)"
+  schedule_expression = "rate(5 minutes)"
 }
 
 resource "aws_cloudwatch_event_target" "cron_event_target" {
   arn  = aws_lambda_function.test_lambda.arn
   rule = aws_cloudwatch_event_rule.cron_event_rule.name
+
+  lifecycle {
+    precondition {
+      condition     = aws_lambda_function.test_lambda.runtime == "go1.x"
+      error_message = "it has to be go environment"
+    }
+  }
+}
+
+resource "aws_sfn_state_machine" "sfn_to_lambda" {
+  name     = var.sfn_name
+  role_arn = aws_iam_role.sfn_role.arn
+
+  definition = jsonencode({
+    "Comment" : "Invoke AWS lambda from step functions",
+    "StartAt" : "doggy",
+    "States" : {
+      "doggy" : {
+        "Type" : "Task",
+        "Resource" : "${aws_lambda_function.test_lambda.arn}",
+        "End" : true
+      }
+    }
+  })
 }

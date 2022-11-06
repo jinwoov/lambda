@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
@@ -56,9 +57,15 @@ func uploadToS3(r Request) error {
 
 	requestReader := bytes.NewReader(rb)
 
+	loc, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		return fmt.Errorf("unable to transcribe time. Error: %v", err)
+	}
+	keyName := fmt.Sprintf("bowwow/dogworld-%s.txt", time.Now().In(loc))
+
 	result, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String("dogbucket-jk"),
-		Key:    aws.String("bowwow/dogworld.txt"),
+		Key:    aws.String(keyName),
 		Body:   requestReader,
 	})
 	if err != nil {
