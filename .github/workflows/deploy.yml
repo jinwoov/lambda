@@ -1,0 +1,36 @@
+name: tf_deploy
+on:
+  push:
+    branches:
+      - "main"
+
+defaults:
+  run:
+    working-directory: infra
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tf_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      
+      - run: |
+          terraform init
+        id: init
+
+      - run: |
+          terraform fmt
+        id: fmt
+      
+      - run: |
+          terraform plan --no-color
+        id: plan
+      
+      - run: |
+          terraform apply --no-color
+        id: apply
