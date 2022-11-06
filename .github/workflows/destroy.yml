@@ -6,10 +6,6 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
-defaults:
-  run:
-    working-directory: infra
     
 
 env:
@@ -23,6 +19,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - run: |
+          cd lambda
+          GOOS=linux go build -o ../infra/main
+        name: Go build
+
       - uses: hashicorp/setup-terraform@v2
         name: Terraform setup
       
@@ -30,14 +37,17 @@ jobs:
           terraform init
         id: init
         name: Terraform init
+        working-directory: infra
       
       - run: |
           terraform plan -no-color
         id: plan
-        continue-on-error: true
         name: Terraform plan
+        working-directory: infra
+
       
       - run: |
           terraform destroy -no-color -auto-approve
         id: destroy
         name: Terraform destroy
+        working-directory: infra
