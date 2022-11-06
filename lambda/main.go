@@ -33,6 +33,7 @@ func Handler(req Request) (Response, error) {
 			ct, err := time.LoadLocation("America/Chicago")
 			if err != nil {
 				fmt.Printf("unable to get time")
+				return nil
 			}
 			return ct
 		}())
