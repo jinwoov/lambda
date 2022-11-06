@@ -35,8 +35,8 @@ jobs:
           terraform plan --no-color
         id: plan
         env:
-          AWS_ACCESS_KEY_ID: ${{ secret.aws_access_key_id }}
-          AWS_SECRET_ACCESS_KEY: ${{ secret.aws_access_key }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_access_key }}
       
       - run: |
           terraform apply --no-color -auto-approve
