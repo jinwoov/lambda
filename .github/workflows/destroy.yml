@@ -1,4 +1,4 @@
-name: tf_deploy
+name: tf_destory
 on:
   workflow_dispatch:
     
@@ -18,7 +18,7 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
 
 jobs:
-  tf_deploy:
+  tf_destory:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
