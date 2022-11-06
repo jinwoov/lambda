@@ -16,6 +16,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+
 jobs:
   tf_deploy:
     runs-on: ubuntu-latest
@@ -30,20 +35,13 @@ jobs:
       - run: |
           terraform fmt
         id: fmt
+
       
       - run: |
           terraform plan --no-color
         id: plan
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
       
       - run: |
           terraform apply --no-color -auto-approve
         id: apply
         if: github.event.pull_request.merged == true
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
