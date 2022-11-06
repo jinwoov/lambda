@@ -13,9 +13,10 @@ import (
 )
 
 type Request struct {
-	Name  string `json:"name"`
-	Age   int    `json:"age"`
-	Breed string `json:"breed"`
+	Name      string    `json:"name"`
+	Age       int       `json:"age"`
+	Breed     string    `json:"breed"`
+	TimeStamp time.Time `json:"timestamp"`
 }
 
 type Response struct {
@@ -28,6 +29,13 @@ func Handler(req Request) (Response, error) {
 		req.Age = 3
 		req.Breed = "golden"
 		req.Name = "mochi"
+		req.TimeStamp = time.Now().In(func() *time.Location {
+			ct, err := time.LoadLocation("America/Chicago")
+			if err != nil {
+				fmt.Printf("unable to get time")
+			}
+			return ct
+		}())
 	}
 
 	err := uploadToS3(req)
@@ -72,7 +80,7 @@ func uploadToS3(r Request) error {
 		return fmt.Errorf("failed to upload file. Error %v", err)
 	}
 
-	fmt.Printf("file uploaded to %v\n", aws.String(result.Location))
+	fmt.Printf("file uploaded to %v\n", *aws.String(result.Location))
 
 	return nil
 }
