@@ -22,7 +22,22 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
 
 jobs:
+  goexe_create:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: |
+          cd lambda
+          GOOS=linux go build -o ../infra/main
+        name: Go build
+
   tf_deploy:
+    needs: goexe_create
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

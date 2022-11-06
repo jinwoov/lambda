@@ -13,7 +13,7 @@ resource "aws_lambda_function" "test_lambda" {
 
 data "archive_file" "lambda_function" {
   type             = "zip"
-  source_file      = "${path.module}/../lambda/main"
+  source_file      = "${path.module}/main"
   output_file_mode = "0666"
   output_path      = "${path.module}/files/main.zip"
 }
