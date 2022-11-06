@@ -18,19 +18,6 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
 
 jobs:
-  goexe_create:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install Go
-        uses: actions/setup-go@v3
-        with:
-          go-version-file: 'go.mod'
-          cache: true
-      - run: |
-          cd lambda
-          GOOS=linux go build -o ../infra/main
-        name: Go build
   tf_deploy:
     defaults:
       run:
@@ -39,6 +26,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - run: |
+          cd lambda
+          GOOS=linux go build -o ../infra/main
+        name: Go build
+
       - uses: hashicorp/setup-terraform@v2
         name: Terraform setup
       
@@ -46,30 +45,35 @@ jobs:
           terraform init
         id: init
         name: Terraform init
+        working-directory: infra
 
       - run: |
           terraform fmt -check
         id: fmt
         name: Terraform format
         continue-on-error: true
+        working-directory: infra
 
 
       - name: Terraform Validate
         id: validate
         run: |
           terraform validate -no-color
+        working-directory: infra
       
       - run: |
           terraform plan -no-color
         id: plan
         continue-on-error: true
         name: Terraform plan
+        working-directory: infra
       
       - run: |
           terraform apply -no-color -auto-approve
         id: apply
         if: github.event.pull_request.merged == true
         name: Terraform apply
+        working-directory: infra
       
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
