@@ -71,3 +71,37 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   role       = aws_iam_role.iam_role_lambda.name
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
+
+resource "aws_iam_role" "sfn_role" {
+  name = "${var.sfn_name}-role"
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Action" : "sts:AssumeRole",
+        "Principal" : {
+          "Service" : "states.amazonaws.com"
+        },
+        "Effect" : "Allow",
+        "Sid" : "StepFunctionAssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "sfn_policy" {
+  name = "${var.sfn_name}-policy"
+  role = aws_iam_role.sfn_role.id
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Action" : [
+          "lambda:InvokeFunction"
+        ],
+        "Effect" : "Allow",
+        "Resource" : "${aws_lambda_function.test_lambda.arn}"
+      }
+    ]
+  })
+}

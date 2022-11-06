@@ -15,3 +15,9 @@ variable "cron_name" {
   type        = string
   description = "cron name"
 }
+
+variable "sfn_name" {
+  default     = "puppy_functions"
+  type        = string
+  description = "name of the step function"
+}
